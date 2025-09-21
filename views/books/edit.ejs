@@ -1,0 +1,47 @@
+<h1 class="mb-3 mt-3">Edit Book</h1> 
+<% if (errors && errors.length > 0) { %> 
+    <div class="error-message"> 
+        <ul> 
+            <% errors.forEach(e => { %> 
+                <% if (typeof e === 'string') { %> 
+                    <li><%= e %></li> 
+                <% } else if (e && e.message) { %> 
+                    <li><%= e.message %></li> 
+                <% } else { %> 
+                    <li><%= JSON.stringify(e) %></li> 
+                <% } %> 
+            <% }) %> 
+        </ul> 
+    </div> 
+<% } %>
+
+<form action="/books/update/<%= book.id %>" method="POST"> 
+    <div class="form-group"> 
+        <label class="form-label" for="title">Title</label> 
+        <input class="form-control" type="text" id="title" name="title" value="<%= book.title %>" required> 
+    </div> 
+    
+    <div class="form-group"> 
+        <label class="form-label" for="author">Author</label> 
+        <input class="form-control" type="text" id="author" name="author" value="<%= book.author %>" required> 
+    </div> 
+    
+    <div class="form-group"> 
+        <label class="form-label" for="isbn">ISBN</label> 
+        <input class="form-control" type="text" id="isbn" name="isbn" value="<%= book.isbn %>" required> 
+    </div>
+    
+    <div class="form-group"> 
+        <label class="form-label" for="publicationYear">Publication Year</label> 
+        <input class="form-control" type="number" id="publicationYear" name="publicationYear" value="<%= book.publicationYear %>" required> 
+    </div> 
+    
+    <div class="form-group"> 
+        <label class="form-label" for="description">Description</label> 
+        <textarea class="form-control" id="description" name="description"><%= book.description %></textarea> 
+    </div> 
+    
+        <button type="submit" class="btn btn-primary mt-3">Update Book</button> 
+        <a href="/books" class="btn btn-secondary mt-3">Cancel</a> 
+
+</form> 
