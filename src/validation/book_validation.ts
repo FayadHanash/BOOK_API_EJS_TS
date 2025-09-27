@@ -1,17 +1,17 @@
-import { BookCreateRequest, BookUpdateRequest } from "../models/book.js";
-type FieldError = { field?: keyof BookCreateRequest; message: string };
+import { BookCreateDto, BookUpdateDto } from "../models/book.js";
+import { FieldError, ValidationError } from "./validation.js";
 
 export class BookValidator {
   private static readonly currentYear = new Date().getFullYear();
 
-  public static validateAndThrow(book: BookCreateRequest | BookUpdateRequest, isUpdate: boolean = false): void {
+  public static validateAndThrow(book: BookCreateDto | BookUpdateDto, isUpdate: boolean = false): void {
     const errors = this.validateBook(book, isUpdate);
     if (errors.length > 0) {
       throw new ValidationError(errors);
     }
   }
 
-  public static validateBook(book: BookCreateRequest | BookUpdateRequest, isUpdate: boolean = false): FieldError[] {
+  public static validateBook(book: BookCreateDto | BookUpdateDto, isUpdate: boolean = false): FieldError[] {
     const errors: FieldError[] = [];
     // title
     if (!isUpdate || book.title !== undefined) {
@@ -70,15 +70,5 @@ export class BookValidator {
   private static isValidPublicationYear(year: number): boolean {
     const yearStr = year.toString();
     return yearStr.length === 4 && year >= 1000 && year <= this.currentYear;
-  }
-}
-
-export class ValidationError extends Error {
-  constructor(
-    public errors: FieldError[],
-    message = "Validation failed",
-  ) {
-    super(message);
-    this.name = "ValidationError";
   }
 }

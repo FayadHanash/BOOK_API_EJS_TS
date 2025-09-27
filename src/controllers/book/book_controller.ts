@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
-import { BookService } from "../services/book_service.js";
-import { BookAPIController } from "./api_controller.js";
+import { BookService } from "../../services/book_service.js";
+import { BookAPIController } from ".././book/api_controller.js";
 import { BookViewController } from "./view_controller.js";
 
 export class BookController {

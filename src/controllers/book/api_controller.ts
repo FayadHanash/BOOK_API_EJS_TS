@@ -1,19 +1,19 @@
 import { Request, Response } from "express";
 
-import { BookCreateRequest, IBookDto } from "@/models/book.js";
+import { BookCreateDto, IBookDto } from "@/models/book.js";
 
-import { BookService } from "../services/book_service.js";
-import { ValidationError } from "../utils/validation.js";
-import { BaseController } from "./base_controller.js";
+import { BookService } from "../../services/book_service.js";
+import { ValidationError } from "../../validation/validation.js";
+import { BaseController } from "../base_controller.js";
 
-export class BookAPIController extends BaseController {
+export class BookAPIController extends BaseController<BookService> {
   constructor(bookService: BookService) {
     super(bookService);
   }
   async createBook(req: Request, res: Response): Promise<void> {
     try {
-      const created = await this.bookService.createBook(req.body as IBookDto);
-      const book = typeof created === "number" ? await this.bookService.getBookById(created) : created;
+      const created = await this.service.createBook(req.body as IBookDto);
+      const book = typeof created === "number" ? await this.service.getBookById(created) : created;
       res.status(201).json(this.SuccessResponse(book));
     } catch (error) {
       if (error instanceof ValidationError) {
@@ -35,7 +35,7 @@ export class BookAPIController extends BaseController {
         res.status(400).json(this.ErrorResponse("Invalid book ID"));
         return;
       }
-      const deleted = await this.bookService.deleteBook(id);
+      const deleted = await this.service.deleteBook(id);
       if (!deleted) {
         res.status(404).json(this.ErrorResponse("Book not found or delete failed"));
         return;
@@ -53,7 +53,7 @@ export class BookAPIController extends BaseController {
         return;
       }
 
-      const book = await this.bookService.getBookById(id);
+      const book = await this.service.getBookById(id);
       if (!book) {
         res.status(404).json(this.ErrorResponse("Book not found"));
         return;
@@ -67,7 +67,7 @@ export class BookAPIController extends BaseController {
 
   async listBooks(_req: Request, res: Response): Promise<void> {
     try {
-      const books = await this.bookService.getAllBooks();
+      const books = await this.service.getAllBooks();
       res.status(200).json(this.SuccessResponse(books, books.length));
     } catch (error) {
       this.handleError(res, error, "listBooksAPI");
@@ -81,13 +81,13 @@ export class BookAPIController extends BaseController {
         res.status(400).json(this.ErrorResponse("Invalid book ID"));
         return;
       }
-      const updated = await this.bookService.updateBook(id, req.body as Partial<BookCreateRequest>);
+      const updated = await this.service.updateBook(id, req.body as Partial<BookCreateDto>);
       if (!updated) {
         res.status(404).json(this.ErrorResponse("Book not found or update failed"));
         return;
       }
 
-      const book = await this.bookService.getBookById(id);
+      const book = await this.service.getBookById(id);
       res.status(200).json(this.SuccessResponse(book));
     } catch (error) {
       if (error instanceof ValidationError) {

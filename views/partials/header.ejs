@@ -6,11 +6,35 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark href="/"></a>
-                        </li>
+                <div class="navbar-collapse collapse" id="mainNavbar">
+                    <ul class="navbar-nav ms-auto">
+                        <% if (user) { %>
+
+                            <li class="nav-item d-flex align-items-center">
+                                <span class="navbar-text me-5 mt-3 mr-3">
+                                    Welcome, <strong><% user.name %></strong>!
+                                </span>
+                            </li>
+                            <li class="nav-item d-flex align-items-center">
+                                <form action="/signout" method="post">
+                                    <input type="hidden" name="_csrf_pro_incomplete">
+                                    <button type="submit" class="nav-link mt-3 me-3">
+                                        Logout
+                                    </button>
+                                </form>
+                                <!--<a class="nav-link mt-3" href="/signout">Logout</a>-->
+                            </li>
+                        <% } else { %>
+
+                            <li class="nav-item">
+                                <a class="nav-link mt-3" href="/signup">Register</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link mt-3" href="/signin">Login</a>
+                            </li>
+
+
+                        <% } %>
                     </ul>
                 </div>
             </div>

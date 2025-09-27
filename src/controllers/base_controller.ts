@@ -1,26 +1,12 @@
 import { Response } from "express";
 
-import { BookService } from "../services/book_service.js";
 import { logger } from "../utils/logger.js";
+import { FieldError, IErrorResponse } from "../validation/validation.js";
 
-interface IAPIResponse<T = unknown> {
-  count?: number;
-  data?: T;
-  error?: string;
-  errors?: IValidationError[];
-  message?: string;
-  success: boolean;
-}
+export abstract class BaseController<T> {
+  constructor(protected service: T) {}
 
-interface IValidationError {
-  field: string;
-  message: string;
-}
-
-export abstract class BaseController {
-  constructor(protected bookService: BookService) {}
-
-  protected ErrorResponse<T = null>(error: string, errors?: IValidationError[]): IAPIResponse<T> {
+  protected ErrorResponse<T = null>(error: string, errors?: FieldError[]): IErrorResponse<T> {
     return {
       error,
       success: false,
@@ -46,7 +32,7 @@ export abstract class BaseController {
     return Number.isNaN(parsed) ? null : parsed;
   }
 
-  protected SuccessResponse<T>(data: T, count?: number): IAPIResponse<T> {
+  protected SuccessResponse<T>(data: T, count?: number): IErrorResponse<T> {
     return {
       data,
       success: true,

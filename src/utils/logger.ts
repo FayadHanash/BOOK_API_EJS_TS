@@ -1,4 +1,6 @@
 import winston from "winston";
+
+import { Config } from "../config/config.js";
 const { colorize, combine, errors, json, printf, timestamp } = winston.format;
 
 type TransformableInfo = winston.Logform.TransformableInfo;
@@ -28,7 +30,7 @@ export const logger = winston.createLogger({
   ],
 });
 
-if (process.env.NODE_ENV !== "production") {
+if (Config.env === "development") {
   logger.add(
     new winston.transports.Console({
       format: combine(colorize(), timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), consoleFormat),

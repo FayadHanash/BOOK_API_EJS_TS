@@ -1,18 +1,22 @@
 import { Request, Response } from "express";
 
-import { BaseController } from "../controllers/base_controller.js";
-import { BookCreateRequest, IBookDto } from "../models/book.js";
-import { BookService } from "../services/book_service.js";
-import { ValidationError } from "../utils/validation.js";
+import { IUserGlobal } from "@/models/user.js";
 
-export class BookViewController extends BaseController {
+import { BookCreateDto, IBookDto } from "../../models/book.js";
+import { BookService } from "../../services/book_service.js";
+import { ValidationError } from "../../validation/validation.js";
+import { BaseController } from "../base_controller.js";
+
+export class BookViewController extends BaseController<BookService> {
   constructor(bookService: BookService) {
     super(bookService);
   }
 
   async createBook(req: Request, res: Response): Promise<void> {
     try {
-      await this.bookService.createBook(req.body as IBookDto);
+      const ibook = req.body as IBookDto;
+      ibook.userId = (req.user as IUserGlobal)?.username;
+      await this.service.createBook(ibook);
       res.redirect("/books");
     } catch (error) {
       if (error instanceof ValidationError) {
@@ -42,7 +46,7 @@ export class BookViewController extends BaseController {
         this.handleError(res, new Error("Invalid book ID"), "deleteBook", 400);
         return;
       }
-      const deleted = await this.bookService.deleteBook(id);
+      const deleted = await this.service.deleteBook(id);
       if (!deleted) {
         this.handleError(res, new Error("Book not found"), "deleteBook", 404);
         return;
@@ -54,9 +58,10 @@ export class BookViewController extends BaseController {
     }
   }
 
-  async listBooks(_req: Request, res: Response): Promise<void> {
+  async listBooks(req: Request, res: Response): Promise<void> {
     try {
-      const books = await this.bookService.getAllBooks();
+      //const books = await this.bookService.getAllBooks();
+      const books = await this.service.getAllBooksBy((req.user as IUserGlobal)?.username);
       res.render("books/", { books });
     } catch (error) {
       this.handleError(res, error, "listBooks");
@@ -74,7 +79,7 @@ export class BookViewController extends BaseController {
         this.handleError(res, new Error("Invalid book ID"), "renderEditView", 400);
         return;
       }
-      const book = await this.bookService.getBookById(id);
+      const book = await this.service.getBookById(id);
       if (!book) {
         this.handleError(res, new Error("Book not found"), "renderEditView", 404);
         return;
@@ -93,7 +98,7 @@ export class BookViewController extends BaseController {
         this.handleError(res, new Error("Invalid book ID"), "updateBook", 400);
         return;
       }
-      const updated = await this.bookService.updateBook(id, req.body as Partial<BookCreateRequest>);
+      const updated = await this.service.updateBook(id, req.body as Partial<BookCreateDto>);
       if (!updated) {
         this.handleError(res, new Error("Book not found"), "updateBook", 404);
         return;
@@ -103,7 +108,7 @@ export class BookViewController extends BaseController {
     } catch (error) {
       if (error instanceof ValidationError) {
         res.status(400).render(`books/edit`, {
-          book: { id, ...(req.body as Partial<BookCreateRequest>) },
+          book: { id, ...(req.body as Partial<BookCreateDto>) },
           errors: error.errors,
         });
         return;
